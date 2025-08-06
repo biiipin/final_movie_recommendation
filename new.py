@@ -263,7 +263,7 @@ if selected_movie != "Select a movie":
         else:
             st.error("No movies found with your filters. Try adjusting them!")
 else:
-    st.title("🎬 Movie Recomendatio Engine")
+    st.title("🎬 Movie Recomendation Engine")
     st.markdown("Explore movies in new ways, Choose an option below to get started.")
 
     with st.expander("✨ 1. Surprise Me With A Mood", expanded=True):
