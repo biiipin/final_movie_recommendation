@@ -35,7 +35,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🎬 Movie Recommender")
+st.title("🎬 Movie Recommender🎬")
 
 
 movies = pickle.load(open("movies_data.pkl", "rb"))
