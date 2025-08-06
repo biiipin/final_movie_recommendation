@@ -4,7 +4,7 @@ import requests
 from sklearn.neighbors import NearestNeighbors
 import difflib
 
-st.set_page_config(page_title="Movie Recommender", layout="wide")
+st.set_page_config(page_title="🎬 Movie Recommender 🎬", layout="wide")
 
 st.markdown("""
 <style>
@@ -41,7 +41,6 @@ tfidf_matrix = pickle.load(open("tfidf_matrix.pkl", "rb"))
 movie_names = movies['title'].values
 
 API_KEY = "bb8c8e12742c72ae502a3863ccb5402a"
-
 
 @st.cache_data
 def fetch_poster(movie_id):
@@ -94,6 +93,7 @@ def fetch_top_movies():
         top_movies.append((m['title'], poster, movie_id))
     return top_movies
 
+# Model for recommendations
 nbrs = NearestNeighbors(n_neighbors=6, metric='cosine').fit(tfidf_matrix)
 
 def recommend(title):
@@ -123,10 +123,13 @@ def recommend(title):
         })
     return recommendations
 
-
 st.markdown("## 🎯 Movie Recommender")
 selected_movie = st.selectbox("🎯 Type or select a movie", movie_names)
-min_rating = st.slider("⭐ Minimum Rating", 0.0, 10.0, 0.0)
+
+# ✅ Both selectboxes
+rating_options = [x / 2 for x in range(0, 21)]  # 0.0 to 10.0 step 0.5
+min_rating = st.selectbox("⭐ Minimum Rating", rating_options, index=0)
+
 year_range = st.slider("📅 Release Year Range", 1950, 2025, (2000, 2025))
 
 if st.button("Show Recommendations"):
@@ -134,9 +137,8 @@ if st.button("Show Recommendations"):
         recommendations = recommend(selected_movie)
         recommendations = [
             r for r in recommendations
-            if r['rating'] >= min_rating and (
-                year_range[0] <= int(r['date'][:4]) if r['date'] and r['date'][:4].isdigit() else 0 <= year_range[1]
-            )
+            if r['rating'] >= min_rating and r['date'] and r['date'][:4].isdigit()
+            and year_range[0] <= int(r['date'][:4]) <= year_range[1]
         ]
         if recommendations:
             cols = st.columns(5)
@@ -155,9 +157,8 @@ if st.button("Show Recommendations"):
         else:
             st.error("No movies found based on your filters. Try adjusting them!")
 
-
+# 🔥 Trending Movies
 chunk_size = 5
-
 st.markdown("## 🔥 Trending This Week")
 trending_movies = fetch_trending_movies()
 for start in range(0, len(trending_movies), chunk_size):
@@ -181,6 +182,7 @@ for start in range(0, len(trending_movies), chunk_size):
                     if trailer:
                         st.video(trailer)
 
+# 🏆 Top Rated Movies
 st.markdown("## 🏆 Top Rated Movies")
 top_movies = fetch_top_movies()
 for start in range(0, len(top_movies), chunk_size):
