@@ -130,7 +130,7 @@ selected_movie = st.selectbox("🎯 Type or select a movie", movie_names)
 rating_options = [x / 2 for x in range(0, 21)]  # 0.0 to 10.0 step 0.5
 min_rating = st.selectbox("⭐ Minimum Rating", rating_options, index=0)
 
-year_range = st.slider("📅 Release Year Range", 1950, 2025, (2000, 2025))
+year_range = st.slider("📅 Release Year Range", 1950, 2025, (1990, 2025))
 
 if st.button("Show Recommendations"):
     with st.spinner("Finding your perfect movies... 🍿"):
