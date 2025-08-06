@@ -4,8 +4,7 @@ import requests
 from sklearn.neighbors import NearestNeighbors
 import difflib
 
-# ---------------- CONFIG ----------------
-st.set_page_config(page_title="🎬 Movie Recommender 🎬", layout="wide")
+st.set_page_config(page_title="Movie Recommender", layout="wide")
 
 st.markdown("""
 <style>
@@ -37,14 +36,13 @@ st.markdown("""
 
 st.title("🎬 Movie Recommender 🎬")
 
-# ---------------- LOAD DATA ----------------
 movies = pickle.load(open("movies_data.pkl", "rb"))
 tfidf_matrix = pickle.load(open("tfidf_matrix.pkl", "rb"))
 movie_names = movies['title'].values
 
 API_KEY = "bb8c8e12742c72ae502a3863ccb5402a"
 
-# ---------------- HELPER FUNCTIONS ----------------
+
 @st.cache_data
 def fetch_poster(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
@@ -96,7 +94,6 @@ def fetch_top_movies():
         top_movies.append((m['title'], poster, movie_id))
     return top_movies
 
-# ---------------- RECOMMENDER MODEL ----------------
 nbrs = NearestNeighbors(n_neighbors=6, metric='cosine').fit(tfidf_matrix)
 
 def recommend(title):
@@ -126,7 +123,7 @@ def recommend(title):
         })
     return recommendations
 
-# ---------------- MOVIE RECOMMENDER (TOP SECTION) ----------------
+
 st.markdown("## 🎯 Movie Recommender")
 selected_movie = st.selectbox("🎯 Type or select a movie", movie_names)
 min_rating = st.slider("⭐ Minimum Rating", 0.0, 10.0, 0.0)
@@ -158,10 +155,9 @@ if st.button("Show Recommendations"):
         else:
             st.error("No movies found based on your filters. Try adjusting them!")
 
-# ---------------- TRENDING + TOP RATED (BOTTOM) ----------------
+
 chunk_size = 5
 
-# Trending Movies
 st.markdown("## 🔥 Trending This Week")
 trending_movies = fetch_trending_movies()
 for start in range(0, len(trending_movies), chunk_size):
@@ -185,7 +181,6 @@ for start in range(0, len(trending_movies), chunk_size):
                     if trailer:
                         st.video(trailer)
 
-# Top Rated Movies
 st.markdown("## 🏆 Top Rated Movies")
 top_movies = fetch_top_movies()
 for start in range(0, len(top_movies), chunk_size):
