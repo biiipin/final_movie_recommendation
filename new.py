@@ -273,22 +273,53 @@ else:
     selected_mood = st.selectbox("How are you feeling today?", list(mood_genre_map.keys()))
     
     def find_mood_movie():
+        """
+        Fetches a random movie suggestion from the TMDB API based on the selected mood.
+        The movie will be from the year 1990 or later.
+        """
         genre_ids = mood_genre_map[selected_mood]
-        # This part requires a new function to fetch movies by mood, which is not in the original code.
-        # Let's assume a function fetch_surprise_movies_by_mood(genre_ids) exists.
-        # For demonstration, we'll just pick a random movie from our list.
-        potential_movies = movies.sample(n=20).to_dict('records') # Placeholder
-        if not potential_movies:
-            st.toast("Couldn't find a fresh movie for that mood, please try again!", icon="😞")
-            st.session_state.surprise_movie = None; return
-        
-        last_movie_id = st.session_state.get('last_mood_surprise')
-        eligible_movies = [m for m in potential_movies if m.get('id') != last_movie_id]
-        if not eligible_movies: eligible_movies = potential_movies
-        
-        chosen_movie = random.choice(eligible_movies)
-        st.session_state.surprise_movie = chosen_movie
-        st.session_state.last_mood_surprise = chosen_movie.get('id')
+        genre_string = ",".join(map(str, genre_ids))
+
+        # API call to TMDB's discover endpoint to get popular movies matching the criteria
+        discover_url = (
+            f"https://api.themoviedb.org/3/discover/movie?"
+            f"api_key={API_KEY}&"
+            f"language=en-US&"
+            f"sort_by=popularity.desc&"
+            f"include_adult=false&"
+            f"include_video=false&"
+            f"page=1&"
+            f"primary_release_date.gte=1990-01-01&"  # Filter for movies from 1990 onwards
+            f"vote_count.gte=200&"  # Get reasonably well-known movies
+            f"with_genres={genre_string}"
+        )
+
+        try:
+            response = requests.get(discover_url)
+            response.raise_for_status()  # Raise an exception for bad status codes
+            data = response.json()
+            potential_movies = data.get('results', [])
+
+            if not potential_movies:
+                st.toast("Couldn't find a fresh movie for that mood, please try again!", icon="😞")
+                st.session_state.surprise_movie = None
+                return
+
+            last_movie_id = st.session_state.get('last_mood_surprise')
+            # Filter out the last movie shown, if possible
+            eligible_movies = [m for m in potential_movies if m.get('id') != last_movie_id]
+            if not eligible_movies:  # If all returned movies were the last one shown, use the original list
+                eligible_movies = potential_movies
+
+            chosen_movie = random.choice(eligible_movies)
+            
+            st.session_state.surprise_movie = chosen_movie
+            st.session_state.last_mood_surprise = chosen_movie.get('id')
+
+        except requests.exceptions.RequestException as e:
+            st.error(f"Failed to fetch mood movies: {e}")
+            st.session_state.surprise_movie = None
+
 
     def clear_mood_movie():
         st.session_state.surprise_movie = None
@@ -404,4 +435,3 @@ for i, movie_id in enumerate(top_rated_movie_ids):
         st.markdown(f"**{movie_title}**")
         with st.expander("Details"):
             display_movie_details(movie_id)
-
