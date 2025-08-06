@@ -5,10 +5,8 @@ from sklearn.neighbors import NearestNeighbors
 import difflib
 import random
 
-# --- Page Configuration (Set first) ---
 st.set_page_config(page_title="🎬 Movie Recommender 🎬", layout="wide")
 
-# --- CSS Styling ---
 st.markdown("""
 <style>
     body {
@@ -65,7 +63,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- Load Data and Model ---
 @st.cache_resource
 def load_data():
     try:
@@ -81,7 +78,7 @@ movie_names = movies['title'].values
 
 API_KEY = "bb8c8e12742c72ae502a3863ccb5402a" # Your TMDB API Key
 
-# --- API Fetching Functions ---
+
 @st.cache_data(show_spinner=False)
 def fetch_poster(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
@@ -127,14 +124,10 @@ def fetch_collection_details(movie_id):
     
     return collection_data.get('parts', [])
 
-# --- NEW: Function to get only movies that are part of a franchise ---
 @st.cache_resource
 def get_franchise_movies():
     franchise_movie_list = []
-    # This is a simplified example. For a real app, you'd want a more efficient way 
-    # to pre-filter this, perhaps during your data preprocessing.
-    # For now, we'll check a sample of popular movies to demonstrate.
-    for title in movie_names[:200]: # Limiting for performance in this example
+    for title in movie_names[:200]:
         movie_record = movies[movies['title'] == title]
         if not movie_record.empty:
             movie_id = movie_record['id'].values[0]
@@ -146,8 +139,6 @@ def get_franchise_movies():
 
 franchise_movie_options = get_franchise_movies()
 
-
-# --- Recommendation Engine & Other Functions ---
 @st.cache_resource
 def get_neighbors_model():
     return NearestNeighbors(n_neighbors=6, metric='cosine').fit(tfidf_matrix)
@@ -175,7 +166,6 @@ def get_movie_for_compare(title):
         "runtime": runtime, "genres": genres, "overview": overview, "trailer": trailer
     }
 
-# --- Standardized Detail Display Function ---
 def display_movie_details(movie_id):
     overview, date, rating, genres, runtime, imdb_link, _ = fetch_details(movie_id)
     trailer = fetch_trailer(movie_id)
@@ -188,7 +178,6 @@ def display_movie_details(movie_id):
     if imdb_link: st.markdown(f"[IMDb Page]({imdb_link})")
     if trailer: st.video(trailer)
 
-# --- Safe Title Lookup ---
 def get_movie_title(movie_id):
     movie_record = movies[movies['id'] == movie_id]
     if not movie_record.empty:
@@ -197,7 +186,6 @@ def get_movie_title(movie_id):
         _, _, _, _, _, _, title = fetch_details(movie_id)
         return title
 
-# --- Sidebar ---
 st.sidebar.header("🎬 Movie Recommender")
 
 def go_home():
@@ -218,7 +206,6 @@ def set_random_movie():
     st.session_state.selected_movie = new_movie
     st.session_state.last_random_surprise = new_movie
 
-# Initialize all session state keys
 if 'selected_movie' not in st.session_state: st.session_state.selected_movie = "Select a movie"
 if 'franchise_movie' not in st.session_state: st.session_state.franchise_movie = "Select a franchise movie"
 if 'last_random_surprise' not in st.session_state: st.session_state.last_random_surprise = None
@@ -233,7 +220,6 @@ year_range = st.sidebar.slider("Release Year Range", 1950, 2025, (1990, 2025))
 st.sidebar.markdown("---")
 st.sidebar.button("🎁 Surprise Me! (Random)", on_click=set_random_movie)
 
-# --- Main Section ---
 if selected_movie != "Select a movie":
     st.title(f"Recommendations for: *{selected_movie}*")
     with st.spinner("Finding your perfect movies... 🍿"):
@@ -262,7 +248,6 @@ if selected_movie != "Select a movie":
             st.error("No movies found based on your filters. Try adjusting them!")
 else:
     st.title("🎬 Movie Recommender")
-    # --- Homepage Content ---
 
     st.markdown("## ✨ Surprise Me With A Mood")
     mood_genre_map = {
@@ -280,7 +265,6 @@ else:
         genre_ids = mood_genre_map[selected_mood]
         genre_string = ",".join(map(str, genre_ids))
 
-        # API call to TMDB's discover endpoint to get popular movies matching the criteria
         discover_url = (
             f"https://api.themoviedb.org/3/discover/movie?"
             f"api_key={API_KEY}&"
@@ -289,14 +273,14 @@ else:
             f"include_adult=false&"
             f"include_video=false&"
             f"page=1&"
-            f"primary_release_date.gte=1990-01-01&"  # Filter for movies from 1990 onwards
-            f"vote_count.gte=200&"  # Get reasonably well-known movies
+            f"primary_release_date.gte=1990-01-01&"
+            f"vote_count.gte=200&"
             f"with_genres={genre_string}"
         )
 
         try:
             response = requests.get(discover_url)
-            response.raise_for_status()  # Raise an exception for bad status codes
+            response.raise_for_status() 
             data = response.json()
             potential_movies = data.get('results', [])
 
@@ -306,9 +290,8 @@ else:
                 return
 
             last_movie_id = st.session_state.get('last_mood_surprise')
-            # Filter out the last movie shown, if possible
             eligible_movies = [m for m in potential_movies if m.get('id') != last_movie_id]
-            if not eligible_movies:  # If all returned movies were the last one shown, use the original list
+            if not eligible_movies: 
                 eligible_movies = potential_movies
 
             chosen_movie = random.choice(eligible_movies)
