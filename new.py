@@ -404,3 +404,4 @@ for i, movie_id in enumerate(top_rated_movie_ids):
         st.markdown(f"**{movie_title}**")
         with st.expander("Details"):
             display_movie_details(movie_id)
+
