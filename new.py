@@ -76,7 +76,7 @@ def load_data():
 movies, tfidf_matrix = load_data()
 movie_names = movies['title'].values
 
-API_KEY = "bb8c8e12742c72ae502a3863ccb5402a" # Your TMDB API Key
+API_KEY = "bb8c8e12742c72ae502a3863ccb5402a"
 
 
 @st.cache_data(show_spinner=False)
@@ -388,7 +388,6 @@ else:
                     st.markdown(f"[Watch Trailer]({movie2_details['trailer']})")
                 st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Trending & Top Rated Movies (Always Displayed) ---
 st.markdown("---")
 st.markdown("## 🔥 Trending This Week")
 trending_movies_response = requests.get(f"https://api.themoviedb.org/3/movie/popular?api_key={API_KEY}&language=en-US&page=1").json()
