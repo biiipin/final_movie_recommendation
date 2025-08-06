@@ -117,7 +117,7 @@ def recommend(title):
 
 selected_movie = st.selectbox("🎯 Type or select a movie", movie_names)
 min_rating = st.slider("⭐ Minimum Rating", 0.0, 10.0, 0.0)
-year_range = st.slider("📅 Release Year Range", 1950, 2025, (2000, 2025))
+year_range = st.slider("📅 Release Year Range", 1950, 2025, (1990, 2025))
 
 
 if st.button("Show Recommendations"):
