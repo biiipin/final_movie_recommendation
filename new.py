@@ -406,19 +406,21 @@ else:
     trending_movies_response = requests.get(f"https://api.themoviedb.org/3/movie/popular?api_key={API_KEY}&language=en-US&page=1").json()
     cols = st.columns(5)
     trending_results = [m for m in trending_movies_response.get('results', []) if isinstance(m, dict)]
-    for i, movie in enumerate(trending_results[:5]):
-        with cols[i]:
+    for i, movie in enumerate(trending_results[:10]):
+        with cols[i % 5]:
             st.image(fetch_poster(movie.get('id')), use_container_width=True)
             st.markdown(f"**{movie.get('title', 'No Title')}**")
-            with st.expander("Details"): display_movie_details(movie.get('id'))
+            with st.expander("Details"):
+                display_movie_details(movie.get('id'))
 
     st.markdown("---")
     st.markdown("## 🏆 Top Rated Movies")
     top_rated_response = requests.get(f"https://api.themoviedb.org/3/movie/top_rated?api_key={API_KEY}&language=en-US&page=1").json()
     cols = st.columns(5)
     top_rated_results = [m for m in top_rated_response.get('results', []) if isinstance(m, dict)]
-    for i, movie in enumerate(top_rated_results[:5]):
-        with cols[i]:
+    for i, movie in enumerate(top_rated_results[:10]):
+        with cols[i % 5]:
             st.image(fetch_poster(movie.get('id')), use_container_width=True)
             st.markdown(f"**{movie.get('title', 'No Title')}**")
-            with st.expander("Details"): display_movie_details(movie.get('id'))
+            with st.expander("Details"):
+                display_movie_details(movie.get('id'))
